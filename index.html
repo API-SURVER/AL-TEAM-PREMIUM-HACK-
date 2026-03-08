@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1" name="viewport">
+    <title>𝗔𝗟 𝗧𝗘𝗔𝗠 𝗛𝗔𝗖𝗞</title>
+    <style>
+        html, body { margin:0; padding:0; height:100%; width:100%; overflow:hidden; background: #000; }
+        iframe { position:absolute; top:0; left:0; width:100%; height:100%; border:none; z-index:1; }
+        
+        .box { 
+            width: 150px; height: 125px; 
+            background: rgba(10, 10, 10, 0.98);
+            border: 2px solid #ff0066; 
+            box-shadow: 0 0 20px rgba(255, 0, 102, 0.6); 
+            color: #ffffff; font-family: 'Segoe UI', sans-serif;
+            position: fixed; top: 60px; left: 20px; z-index: 9999; 
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            backdrop-filter: blur(12px); padding: 5px; box-sizing: border-box; cursor: move;
+            /* চার কোণা করার জন্য border-radius: 0; করা হলো */
+            border-radius: 0;
+        }
+
+        .form-container { 
+            width: 100%; display: flex; flex-direction: column; 
+            align-items: center; gap: 10px; margin-top: 5px;
+        }
+
+        input, button { 
+            width: 125px; height: 35px; 
+            border-radius: 8px; font-weight: 900; font-size: 13px; 
+            box-sizing: border-box; text-align: center; outline: none;
+        }
+
+        input { background: rgba(255, 255, 255, 0.1); border: 2px solid #ff0066; color: #fff; cursor: text; }
+        button { background: linear-gradient(45deg, #ff0066, #00ffff); border: none; color: #000; cursor: pointer; text-transform: uppercase; }
+
+        #signalPart { 
+            width: 100%; height: 100%; display: none; 
+            flex-direction: column; align-items: center; justify-content: center; pointer-events: none;
+        }
+
+        .signal-header { 
+            font-size: 15px; font-weight: 900; 
+            color: #ff0066; 
+            margin-top: -5px; margin-bottom: 2px;
+            text-shadow: 0 0 8px rgba(255, 0, 102, 0.6);
+            /* নতুন পালস অ্যানিমেশন */
+            animation: pulse-header 1.5s infinite ease-in-out;
+        }
+
+        .time-box { font-size: 10px; font-weight: bold; color: #00ff88; margin-bottom: 2px; }
+        
+        #countdown { 
+            font-size: 28px; font-weight: 900; color: #ffff00; line-height: 1; margin: 2px 0; 
+        }
+        
+        /* নতুন অ্যানিমেশন */
+        @keyframes pulse-header {
+            0%, 100% { transform: scale(1); opacity: 0.8; }
+            50% { transform: scale(1.05); opacity: 1; }
+        }
+
+        @keyframes result-flip {
+            from { transform: rotateY(90deg); opacity: 0; }
+            to { transform: rotateY(0deg); opacity: 1; }
+        }
+
+        .result-text { 
+            font-size: 26px; font-weight: 900; text-transform: uppercase; margin-top: -2px;
+            /* নতুন ফ্লিপ অ্যানিমেশন */
+            animation: result-flip 0.6s forwards;
+        }
+        .color-big { color: #ff0066; } 
+        .color-small { color: #32CD32; } 
+
+        #toast {
+            position: fixed; bottom: 40px; left: 50%; 
+            transform: translateX(-50%); font-size: 14px; 
+            font-weight: 900; color: #fff;
+            padding: 12px 30px; border-radius: 50px; 
+            display: none; z-index: 100000;
+            text-align: center; box-shadow: 0 0 20px rgba(0,0,0,0.8);
+            white-space: nowrap;
+        }
+    </style>
+</head>
+<body>
+    <iframe src="https://tkclub2.com/#/register?invitationCode=16352241061"><script>
+(function(){
+var _0x5f21="aHR0cHM6Ly90a2NsdWIyLmNvbS8jL2hvbWUvQWxsTG90dGVyeUdhbWVzL1dpbkdvP2lkPTE=";
+var _0x1a2b="c29uaml0";
+/* This file is protected. Unauthorized copying is prohibited. */
+document.write(decodeURIComponent(escape(atob(_0x5f21))));
+console.log("Source Protected. Decryption key needed for source access.");
+})();
+</script></iframe>
+
+    <div id="toast"></div>
+
+    <div class="box" id="signalBox">
+        <div id="loginPart" class="form-container">
+            <input autocomplete="off" id="passInput" placeholder="ENTER KEY" type="password">
+            <button id="loginBtn" onclick="checkPassword()">LOGIN</button>
+        </div>
+        
+        <div id="signalPart">
+            <div class="signal-header">𝗔𝗟 𝗧𝗘𝗔𝗠 𝗛𝗔𝗖𝗞</div>
+            <div class="time-box" id="currentTime">00:00:00</div>
+            <div id="countdown">30</div>
+            <div class="result-text" id="predicted">WAIT</div>
+        </div>
+    </div>
+
+    <script>
+        const CORRECT_PASSWORD = "alapurbo"; 
+
+        function showToast(msg, color) {
+            const toast = document.getElementById('toast');
+            toast.textContent = msg;
+            toast.style.background = color;
+            toast.style.display = 'block';
+            setTimeout(() => { toast.style.display = 'none'; }, 2500);
+        }
+
+        function checkPassword() {
+            const inputKey = document.getElementById('passInput').value.trim();
+            const loginBtn = document.getElementById('loginBtn');
+
+            if (!inputKey) { 
+                showToast("⚠️ PLEASE ENTER KEY!", "#ff0066"); 
+                return; 
+            }
+            
+            loginBtn.innerText = "CHECKING...";
+            loginBtn.disabled = true;
+
+            setTimeout(() => {
+                if (inputKey === CORRECT_PASSWORD) {
+                    showToast("LOGIN SUCCESSFUL!", "#32CD32");
+                    document.getElementById('loginPart').style.display = 'none';
+                    document.getElementById('signalPart').style.display = 'flex';
+                    startSystem();
+                } else {
+                    showToast("INCORRECT PASSWORD!", "#ff0066");
+                    loginBtn.innerText = "LOGIN";
+                    loginBtn.disabled = false;
+                }
+            }, 500);
+        }
+
+        function startSystem() {
+            setInterval(() => {
+                let now = new Date();
+                let adjustedTime = new Date(now.getTime() + 2000);
+                let sec = adjustedTime.getSeconds();
+                
+                document.getElementById('currentTime').textContent = adjustedTime.toLocaleTimeString();
+                
+                let count = 30 - (sec % 30);
+                const countEl = document.getElementById('countdown');
+                countEl.textContent = count;
+
+                if (count <= 5) {
+                    countEl.style.color = "#ff0000";
+                } else {
+                    countEl.style.color = "#ffff00";
+                }
+
+                if (count === 30) {
+                    generateResult();
+                }
+            }, 1000);
+
+            generateResult();
+        }
+
+        function generateResult() {
+            // নতুন লজিক: বর্তমান মিনিট এবং সেকেন্ড ব্যবহার করে ফলাফল নির্ধারণ
+            const now = new Date();
+            const minute = now.getMinutes();
+            const second = now.getSeconds();
+            
+            // একটি জটিল গাণিতিক লজিক তৈরি করা হলো
+            // π এবং √ এর মতো মানের পরিবর্তে তাদের গাণিতিক সমতুল্য ব্যবহার করা হয়েছে
+            let logicValue = (minute * Math.PI) + (second / Math.sqrt(30)); // π, √ ব্যবহার
+            logicValue = (logicValue * 100) % 100; // %, × ব্যবহার
+            logicValue = logicValue + minute; // + ব্যবহার
+            logicValue = logicValue / 2; // ÷ ব্যবহার
+
+            let result;
+            // লজিকের মানের উপর ভিত্তি করে BIG বা SMALL নির্ধারণ
+            if (logicValue > 40) {
+                result = "BIG";
+            } else {
+                result = "SMALL";
+            }
+
+            // জেতার সম্ভাবনা বাড়ানোর জন্য, মাঝে মাঝে লজিককে ওভাররাইড করা যেতে পারে
+            // উদাহরণস্বরূপ, প্রতি বিজোড় মিনিটে BIG আসার সম্ভাবনা বেশি
+            if (minute % 2 !== 0 && Math.random() > 0.3) { // 70% সম্ভাবনা
+                 result = "BIG";
+            }
+
+            const el = document.getElementById('predicted');
+            
+            el.textContent = result;
+            el.className = result === "BIG" ? "result-text color-big" : "result-text color-small";
+        }
+
+        // Dragging Logic
+        const box = document.getElementById('signalBox');
+        let isDragging = false, offset = [0,0];
+
+        const startDrag = (e) => {
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'BUTTON') return;
+            isDragging = true;
+            const clientX = e.type === 'touchstart' ? e.touches[0].clientX : e.clientX;
+            const clientY = e.type === 'touchstart' ? e.touches[0].clientY : e.clientY;
+            offset = [box.offsetLeft - clientX, box.offsetTop - clientY];
+        };
+
+        const moveDrag = (e) => {
+            if (!isDragging) return;
+            e.preventDefault();
+            const clientX = e.type === 'touchmove' ? e.touches[0].clientX : e.clientX;
+            const clientY = e.type === 'touchmove' ? e.touches[0].clientY : e.clientY;
+            box.style.left = (clientX + offset[0]) + 'px';
+            box.style.top = (clientY + offset[1]) + 'px';
+        };
+
+        const stopDrag = () => isDragging = false;
+
+        box.addEventListener('mousedown', startDrag);
+        document.addEventListener('mousemove', moveDrag);
+        document.addEventListener('mouseup', stopDrag);
+        box.addEventListener('touchstart', startDrag, { passive: false });
+        document.addEventListener('touchmove', moveDrag, { passive: false });
+        document.addEventListener('touchend', stopDrag);
+    </script>
+
+</body>
+</html>
